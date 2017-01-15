@@ -1,4 +1,5 @@
 import React, { PropTypes, Component } from 'react'
+import validate from 'validate.js';
 
 export default class AddNewDropdown extends Component {
   static propTypes = {
@@ -28,6 +29,15 @@ export default class AddNewDropdown extends Component {
   }
 
   _handleAdd() {
-    this.props.handleAddPost({ url: this.state.url, title: this.state.title });
+    if (this._validateInputFields()) {
+      this.props.handleAddPost({ url: this.state.url, title: this.state.title });
+    }
+  }
+
+  _validateInputFields() {
+    if (this.state.title.trim() === "" || validate({url: this.state.url}, {url: {url: true}})) {
+      alert("Make sure you have entered a title and a valid URL.");
+      return false;
+    } else return true;
   }
 }

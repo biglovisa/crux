@@ -2,6 +2,8 @@ html {
   background-color: aliceblue;
 }
 
+/* Feed */
+
 .posts {
   background-color: white;
   display: flex;
@@ -33,4 +35,17 @@ html {
 
 .post-toolbar p:last-child {
   padding-left: 36em;
+}
+
+/* Add New Dropdown */
+
+.add-new-dropdown {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  max-width: 15em;
+}
+
+.add-new-dropdown p, label, input, button {
+  margin: 0.3em;
 }
