@@ -1,9 +1,10 @@
 import { combineReducers } from 'redux';
-let id = 0;
+let id = 1;
 
-const posts = (state = [], action) => {
+const initialState = [{id: 1, url: 'http://www.petlandkennesaw.com/wp-content/uploads/2016/06/kitten-little.jpg', title: "whaaat", comments: ['so cute'], votes: 0}];
+
+const posts = (state = initialState, action) => {
   if (action.type === 'ADD_POST') {
-    console.log(action);
     return [
       {
         id: ++id,

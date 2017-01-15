@@ -17,7 +17,8 @@ export default class Header extends Component {
       : <button onClick={this.props.toggleAddNewDropdown}>Add post</button>;
 
     return (
-      <div>
+      <div className="header">
+        <h1>Kittens</h1>
         {content}
       </div>
     )

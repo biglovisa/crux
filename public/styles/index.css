@@ -1,11 +1,12 @@
 html {
-  background-color: aliceblue;
+  font-family: 'Oxygen', sans-serif;
 }
 
 /* Feed */
 
 .posts {
-  background-color: white;
+  border-left: 2px solid dodgerblue;
+  border-right: 2px solid dodgerblue;
   display: flex;
   flex-direction: column;
   margin: 0 auto;
@@ -37,15 +38,30 @@ html {
   padding-left: 36em;
 }
 
-/* Add New Dropdown */
+/* Header */
 
-.add-new-dropdown {
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  max-width: 15em;
+.header {
+  min-height: 6em;
+  border-bottom: 2px solid dodgerblue;
 }
 
-.add-new-dropdown p, label, input, button {
-  margin: 0.3em;
+.header h1 {
+  text-align: center;
 }
+
+  /* Add New Dropdown */
+
+  .add-new-dropdown {
+    background-color: aliceblue;
+    border: 2px solid dodgerblue;
+    display: flex;
+    flex-direction: column;
+    max-width: 15em;
+
+    position: absolute;
+    z-index: 3;
+  }
+
+  .add-new-dropdown p, label, input, button {
+    margin: 0.3em;
+  }
