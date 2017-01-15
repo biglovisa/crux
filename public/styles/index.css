@@ -1,0 +1,36 @@
+html {
+  background-color: aliceblue;
+}
+
+.posts {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+  padding-left: 2em;
+  padding-right: 2em;
+  width: 50%;
+}
+
+.post {
+  padding-top: 2em;
+  width: 100%;
+}
+
+.post img {
+  height: 30em;
+  width: 45em;
+}
+
+.post-toolbar {
+  display: flex;
+  width: 100%;
+}
+
+.post-toolbar p {
+  width: 50%;
+}
+
+.post-toolbar p:last-child {
+  padding-left: 36em;
+}
