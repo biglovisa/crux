@@ -1,0 +1,6 @@
+# ignore node modules and all things npm
+node_modules/
+npm*
+
+# ignore todo file
+todo.md
