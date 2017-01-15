@@ -22,10 +22,10 @@ export default class Feed extends Component {
   _createPostElement(post) {
     return (
       <div className="post" key={post.id}>
-        <img src={post.image} />
+        <img src={post.url} />
         <div className="post-toolbar">
           <p>{post.title}</p>
-          <p><i className="fa fa-comments" aria-hidden="true"></i>{post.comments.length}</p>
+          <p><i className="fa fa-comments" aria-hidden="true"></i>{post.comments.length || 0}</p>
         </div>
       </div>
     );

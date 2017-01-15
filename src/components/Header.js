@@ -1,8 +1,10 @@
 import React, { PropTypes, Component } from 'react'
+import AddNewDropdown from './AddNewDropdown';
 
 export default class Header extends Component {
   static propTypes = {
-    handleAddPost: PropTypes.func.isRequired
+    toggleAddNewDropdown: PropTypes.func.isRequired,
+    isAddNewDropdownOpen: PropTypes.bool.isRequired
   }
 
   constructor(props) {
@@ -10,8 +12,14 @@ export default class Header extends Component {
   }
 
   render() {
+    const content = this.props.isAddNewDropdownOpen
+      ? <AddNewDropdown handleAddPost={this.props.handleAddPost} handleCollapse={this.props.toggleAddNewDropdown} />
+      : <button onClick={this.props.toggleAddNewDropdown}>Add post</button>;
+
     return (
-      <button onClick={this.props.handleAddPost}>Add post</button>
+      <div>
+        {content}
+      </div>
     )
   }
 }
