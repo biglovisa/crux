@@ -11,7 +11,9 @@ const Main = ({ posts, actions, isAddNewDropdownOpen }) => (
     <Header toggleAddNewDropdown={actions.toggleAddNewDropdown}
             handleAddPost={actions.addPost}
             isAddNewDropdownOpen={isAddNewDropdownOpen} />
-    <Feed posts={posts} handleDelete={actions.deletePost} />
+    <Feed posts={posts}
+          handleDelete={actions.deletePost}
+          handleUpdatePost={actions.handleUpdatePost} />
   </div>
 );
 

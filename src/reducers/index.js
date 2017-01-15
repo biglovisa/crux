@@ -18,6 +18,13 @@ const posts = (state = initialState, action) => {
       ];
     case 'DELETE_POST':
       return state.filter(post => post.id !== action.id);
+    case 'UPDATE_POST':
+      return state.map((post) => {
+        if (post.id === action.payload.id) {
+          return Object.assign({}, post, action.payload);
+        }
+        return post;
+      });
     default:
       return state;
   }
