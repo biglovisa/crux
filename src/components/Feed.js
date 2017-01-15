@@ -2,8 +2,7 @@ import React, { PropTypes, Component } from 'react'
 
 export default class Feed extends Component {
   static propTypes = {
-    posts: PropTypes.array.isRequired,
-    handleAddPost: PropTypes.func.isRequired
+    posts: PropTypes.array.isRequired
   }
 
   constructor(props) {
@@ -14,13 +13,10 @@ export default class Feed extends Component {
     const posts = this.props.posts.map(this._createPostElement);
 
     return (
-      <div>
-        <button onClick={this.props.handleAddPost}>Add post</button>
-        <div className="posts">
-          {posts}
-        </div>
+      <div className="posts">
+        {posts}
       </div>
-    )
+    );
   }
 
   _createPostElement(post) {
@@ -35,8 +31,3 @@ export default class Feed extends Component {
     );
   }
 }
-
-Feed.propTypes = {
-  posts: PropTypes.array.isRequired,
-  handleAddPost: PropTypes.func.isRequired
-};

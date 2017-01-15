@@ -4,16 +4,18 @@ import { connect } from 'react-redux'
 import * as actions from '../actions'
 
 import Feed from '../components/Feed';
+import Header from '../components/Header';
 
 const Main = ({ posts, actions }) => (
   <div>
-    <Feed posts={posts} handleAddPost={actions.addPost} />
+    <Header handleAddPost={actions.addPost} />
+    <Feed posts={posts} />
   </div>
 );
 
 Main.propTypes = {
   posts: PropTypes.array.isRequired,
-  handleAddPost: PropTypes.object.isRequired
+  actions: PropTypes.object.isRequired
 }
 
 const mapStateToProps = state => ({
