@@ -1,8 +1,10 @@
 import React, { PropTypes, Component } from 'react'
+import Post from './Post';
 
 export default class Feed extends Component {
   static propTypes = {
-    posts: PropTypes.array.isRequired
+    posts: PropTypes.array.isRequired,
+    handleDelete: PropTypes.func.isRequired
   }
 
   constructor(props) {
@@ -10,23 +12,11 @@ export default class Feed extends Component {
   }
 
   render() {
-    const posts = this.props.posts.map(this._createPostElement);
+    const posts = this.props.posts.map((post) => <Post {...post} handleDelete={this.props.handleDelete} key={post.id} />);
 
     return (
       <div className="posts">
         {posts}
-      </div>
-    );
-  }
-
-  _createPostElement(post) {
-    return (
-      <div className="post" key={post.id}>
-        <img src={post.url} />
-        <div className="post-toolbar">
-          <p>{post.title}</p>
-          <p><i className="fa fa-comments" aria-hidden="true"></i>{post.comments.length || 0}</p>
-        </div>
       </div>
     );
   }

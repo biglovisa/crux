@@ -30,14 +30,6 @@ html {
   width: 100%;
 }
 
-.post-toolbar p {
-  width: 50%;
-}
-
-.post-toolbar p:last-child {
-  padding-left: 36em;
-}
-
 /* Header */
 
 .header {
