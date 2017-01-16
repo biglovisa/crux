@@ -5,7 +5,7 @@ const webpack = require('webpack');
 const app = express();
 const PORT = 8080;
 
-const config = require("./webpack.config.js");
+const config = require('./webpack.config.js');
 const compiler = webpack(config);
 
 app.use(express.static(path.join(__dirname, 'public')));
