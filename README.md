@@ -1,13 +1,32 @@
 # Crux (or Task Manager)
-## Crud + Redux
+## Crud + Redux with React
 
 In this tutorial we are going to build a Redux app where we can create, view, edit, and delete tasks. It is assumed that you are familiar with JavaScript, web applications, and React. If you are not familiar with React, consider checking out the [creact](https://github.com/applegrain/creact/) tutorial.
 
 ### Sections
 
+0. [Redux 101](0-redux-101)
 1. [Setting up the app](1-setting-up-the-app)
 
 <br>
+
+### 0. Redux 101
+
+Redux wasn't the first of its kind. Before it got popular in mid-2015, there were many projects that had attempted solving the same problem: managing state across a larger front end application.
+
+With Redux, you maintain your application state in a store. You keep a single state object in the store, and when you update it, you cannot mutate it but rather, have to replace it with a new object. You connect components to the Redux store so that they are notified of any state changes when those occur.
+
+When something happens in a component that should change the state, you dispatch an action. The action is basically just a POJO (plain old JavaScript object) with a few special keys. This object is required to have a key `type` which points to a string value (the name of the action, or the action type). Other keys in the action object can be user entered data that we're going to save in our database.
+
+When an action is dispatched, it's run through the reducers where we can specify how the state should update based on what type the given action has. **The inputs to a reducer is the state and the action, and the output is a new, updated, version of the application state.** Reducers are pure functions, meaning that they cannot have side effects or mutate data.
+
+The new state that's returned by the reducer gets set in the Redux store. The components that are connected to the redux store will be notified about the state change and re-render accordingly.
+
+For more information about how Redux works, check out this [cartoon guide](https://code-cartoons.com/a-cartoon-intro-to-redux-3afb775501a6#.n2qtjwsvh).
+
+Another important thing about using Redux with React is the notion of presentational vs container components. You might have heard of "smart" and "dumb" components, and this is very similar. In an effort to separate concerns and isolate dependencies on state, we write as many presentational, dumb, components as possible. Dumb components receive data from their parents (in the form of props) and render differently based on that data.
+
+Container components are aware of Redux and are connected to the Redux store. Most of the logic should end up here. In these container components, we can calculate based on state what data and callbacks we need to pass down to the dumb components.
 
 ### 1. Setting up the app
 
