@@ -7,6 +7,7 @@ In this tutorial we are going to build a Redux app where we can create, view, ed
 
 0. [Redux 101](0-redux-101)
 1. [Setting up the app](1-setting-up-the-app)
+2. [Adding a Header](2-adding-a-header)
 
 <br>
 
@@ -24,7 +25,7 @@ The new state that's returned by the reducer gets set in the Redux store. The co
 
 For more information about how Redux works, check out this [cartoon guide](https://code-cartoons.com/a-cartoon-intro-to-redux-3afb775501a6#.n2qtjwsvh).
 
-Another important thing about using Redux with React is the notion of presentational vs container components. You might have heard of "smart" and "dumb" components, and this is very similar. In an effort to separate concerns and isolate dependencies on state, we write as many presentational, dumb, components as possible. Dumb components receive data from their parents (in the form of props) and render differently based on that data.
+Another important thing about using Redux with React is the separation of presentational and container components. You might have heard of "smart" and "dumb" components, and this is very similar. In an effort to separate concerns and isolate dependencies on state, we write as many presentational, dumb, components as possible. Dumb components receive data from their parents (in the form of props) and render differently based on that data.
 
 Container components are aware of Redux and are connected to the Redux store. Most of the logic should end up here. In these container components, we can calculate based on state what data and callbacks we need to pass down to the dumb components.
 
@@ -209,3 +210,99 @@ app.get('/', function(req, res) {
 Now, when you start your server, you'll notice more logging printing to the screen.
 
 Last thing we are going to do in this section is to create a `src` directory and add an `index.js` file. In the next section we'll start working with JavaScript.
+
+### 2. Adding a Header
+
+In this section we are going to set up the Redux store, our container component, and render a dumb React component.
+
+In the `index.js` file we created in the `src` directory, and in that file we are going to put our root container. We are going to connect the root container to the redux store so that we are notified of any state changes. Using the state object, we then can "prepare" data and functions we pass down to presentational (dumb) components that are rendered in the root container.
+
+Let's create the root container and the
+
+```shell
+$ touch src/containers/RootContainer.js src/components/Header.js
+```
+
+First, we need to import some stuff.
+
+**src/index.js**
+```JavaScript
+import React from 'react'
+import { render } from 'react-dom'
+import { createStore } from 'redux'
+import { Provider } from 'react-redux'
+
+import RootContainer from './containers/RootContainer'
+import reducer from './reducers'
+```
+
+`createStore` is a well named function used to create Redux stores and `Provider` is a wrapper component which is given a redux store as a prop, and notifies connected components to state changes.
+
+We pass a reducer to the `createStore` function to create a store. When an action dispatches, it will go through the given reducers to determine what changes need to be made to state.
+
+So, to create a store:
+
+**src/index.js**
+```JavaScript
+const store = createStore(reducer)
+```
+
+And to our `render` function we pass the `Provider` component, with our store as its prop, and around it the RootContainer.
+
+**src/index.js**
+```JavaScript
+render(
+  <Provider store={store}>
+    <RootContainer />
+  </Provider>,
+  document.getElementById('root')
+)
+```
+
+Now, we move on to the root container.
+
+Again, we import some stuff and import the Header component we are going to use. `connect` is the function we use to
+
+**src/containers/RootContainer.js**
+```JavaScript
+import React, { PropTypes } from 'react'
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+
+import Header from '../components/Header'
+```
+
+For now, our `RootContainer` component can be as simple as this:
+
+**src/containers/RootContainer.js**
+```JavaScript
+const RootContainer = () => (
+  <div>
+    <Header />
+  </div>
+)
+```
+
+To connect our container to the redux store, we pass it to the `connect` function. Or to be more specific - the return value of calling `connect()` is a function which in turn takes the component we wish to connect to the store.
+
+**src/containers/RootContainer.js**
+```JavaScript
+export default connect()(RootContainer)
+```
+
+Perfect! We are almost done with this piece, we just need to finish the Header component. It's not super important what's here, so let's just render the title for now.
+
+**src/components/Header.js**
+```JavaScript
+import React, { Component } from 'react';
+
+export default class Header extends Component {
+  render() {
+    return (
+      <div className="header">
+        <h1>Task Manager</h1>
+      </div>
+    )
+  }
+}
+```
