@@ -8,7 +8,8 @@ In this tutorial we are going to build a Redux app where we can create, view, ed
 0. [Redux 101](0-redux-101)
 1. [Setting up the app](1-setting-up-the-app)
 2. [Adding a Header](2-adding-a-header)
-3. [Passing props to the Header](2-passing-props-to-the-header)
+3. [Passing props to the Header](3-passing-props-to-the-header)
+4. [Create a task](4-create-a-task)
 
 <br>
 
@@ -381,3 +382,238 @@ export default class Header extends Component {
   }
 }
 ```
+
+Now that we have a prop, let's add `PropTypes` to this component.
+
+**src/components/Header.js**
+```JavaScript
+import React, { Component, PropTypes } from 'react';
+
+....
+
+Header.PropTypes = {
+  title: PropTypes.string.isRequired
+}
+```
+
+And to the `RootContainer` as well.
+
+**src/containers/RootContainer.js**
+```JavaScript
+import React, { PropTypes } from 'react'
+
+....
+
+RootContainer.PropTypes = {
+  title: PropTypes.string.isRequired
+}
+```
+
+
+### 4. Create a task
+
+To create a task, we need to add a react component that renders a form with `title` and `deadline` input fields. When we click `submit` we need to dispatch an action which triggers a state change in a reducer. When the new state is set, our root container will be notified and pass the new data to the components it render.
+
+Let's start by adding the form.
+
+```shell
+$ touch src/components/AddNewForm.js
+```
+
+**src/containers/RootContainer.js**
+```JavaScript
+import AddNewForm from '../components/AddNewForm'
+
+const RootContainer = ({ title }) => (
+  <div>
+    <Header title={title} />
+    <AddNewForm />
+  </div>
+)
+```
+
+Let's add some scaffolding in the `AddNewForm` component.
+
+**src/components/AddNewForm.js**
+```JavaScript
+import React, { Component } from 'react';
+
+export default class AddNewForm extends Component {
+  render() {
+    return (
+      <div className="add-new-form">
+      </div>
+    )
+  }
+}
+```
+
+And then add the form:
+
+**src/components/AddNewForm.js**
+```JavaScript
+render() {
+  return (
+    <div className="add-new-form">
+      <div>
+        <label>Title</label>
+        <input />
+      </div>
+      <div>
+        <label>Description</label>
+        <input />
+      </div>
+      <button type="submit">Submit</button>
+    </div>
+  )
+}
+```
+
+Let's add an event listener to the `Submit` button. We need to use [`bind()`]() since the `this` context is not bound to component functions. If you use `React.createClass`, the context is implicitly bound to the functions on the component. Another way to solve this problem is to bind functions in the class constructor, or use the [react-autobind](https://www.npmjs.com/package/react-autobind) library.
+
+**src/components/AddNewForm.js**
+```JavaScript
+
+  onClick() => {
+    console.log(this.state)
+  }
+
+  render() {
+
+....
+
+    </div>
+    <button type="submit" onClick={this.onClick.bind(this)}>Submit</button>
+  </div>
+  )
+
+....
+```
+
+The state we need to keep track of is the title and description. Let's add initial state, and update the state when the values in the input field is changing.
+
+**src/AddNewForm.js**
+```JavaScript
+export default class AddNewForm extends Component {
+  state = { title: '', description: '' }
+
+  onClick() {
+
+....
+
+    <div>
+      <label>Title</label>
+      <input onChange={(e) => this.setState({ title: e.target.value })} />
+    </div>
+    <div>
+      <label>Description</label>
+      <input onChange={(e) => this.setState({ description: e.target.value })} />
+    </div>
+
+....
+```
+
+Now we are ready to implement the actual submitting of the new task.
+
+The tasks should be kept in the redux store, and to update the store, we need to dispatch an action. We need to create an action, an object which _describes_ what's going to happen. We also need to add a reducer which will update the state based on what action was dispatched. Then, we can prepare and pass down the dispatch call from the root container to the AddNewForm component.  
+
+Let's start with the action.
+
+```shell
+$ mkdir src/actions
+$ touch src/actions/index.js
+```
+
+The action is a function which returns an object with a key `type` and in this case, a `payload` which will be an object with the title and description of the new task.
+
+**src/actions/index.js**
+```JavaScript
+export const createTask = (payload) => ({ type: 'CREATE_TASK', payload });
+```
+
+The action will be passed to every reducer in the store, and using the type, we can react to different dispatches. Below, we have added a new reducer  - `tasks` - and added it to the `combineReducers` function. If the action type is `CREATE_TASK`, we are assuming that there is a title and a description in the payload, and are returning a new array containing the previously existing task as well as the new task object.
+
+**src/reducers/index.js**
+```JavaScript
+const tasks = (state = [], action) => {
+  if (action.type === 'CREATE_TASK') {
+    const { title, description } = action.payload
+    return [
+      ...state,
+      { title, description }
+    ]
+  }
+}
+
+....
+
+export default combineReducers({
+  tasks,
+  title
+})
+```
+
+Next, we need to "prepare" the dispatch in the `RootContainer` before we pass it down to the `AddNewForm`.
+
+Just like we use `mapStateToProps` to create props from state, we use `mapStateToProps` to create props using actions and dispatch functions. Here, we are using the `bindActionCreators` function to wrap each action in a `dispatch` call instead of having to write `dispatch(myAction)` with every action. `bindActionCreators` will return an object with keys corresponding to the action names, and keys pointing to the dispatch.
+
+**src/actions/RootContainer.js**
+```JavaScript
+....
+
+import * as action from '../actions'
+
+....
+
+const mapDispatchToProps = dispatch => {
+  return {
+    actions: bindActionCreators(actions, dispatch)
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(RootContainer);
+```
+
+In next section, we are going to pass the tasks to another component which will render them on the page. For now, let's just pass them to our container component and use `console.log` to print them to the console.
+
+We pluck the `tasks` key of the state. Look in the `combineReducers` function in `reducers/index.js`. Every reducer that we put there becomes a key on the state object.
+
+**src/actions/RootContainer.js**
+```JavaScript
+...
+
+const mapStateToProps = state => {
+  return {
+    tasks: state.tasks,
+    title: state.title
+  }
+}
+
+...
+
+```
+
+Then, we need to pass the `tasks` key to the container as a prop, add it in the `PropTypes` object, and print the value to the console so we can confirm we are adding tasks when we click the form button.
+
+**src/containers/RootContainer.js**
+```JavaScript
+...
+
+const RootContainer = ({ actions, tasks, title }) => (
+  <div>
+    {console.log('tasks:', tasks)}
+    <Header title={ title } />
+    <AddNewForm handleSubmitAction={ actions.createTask } />
+  </div>
+)
+
+RootContainer.PropTypes = {
+  actions: PropTypes.object.isRequired,
+  tasks: PropTypes.array.isRequired,
+  title: PropTypes.string.isRequired
+}
+
+...
+```
+
+And hopefully when you add tasks using the form, you'll see them in the console!
