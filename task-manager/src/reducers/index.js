@@ -1,9 +1,9 @@
 import { combineReducers } from 'redux';
 
-const tasks = (state = [], action) => {
+const title = (state = 'Task Manager', action) => {
   return state
 }
 
 export default combineReducers({
-  tasks
+  title
 });

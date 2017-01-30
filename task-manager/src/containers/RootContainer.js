@@ -4,10 +4,16 @@ import { connect } from 'react-redux'
 
 import Header from '../components/Header'
 
-const RootContainer = () => (
+const RootContainer = ({ title }) => (
   <div>
-    <Header />
+    <Header title={title} />
   </div>
 )
 
-export default connect()(RootContainer)
+const mapStateToProps = (state) => {
+  return {
+    title: state.title
+  }
+}
+
+export default connect(mapStateToProps)(RootContainer);

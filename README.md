@@ -8,6 +8,7 @@ In this tutorial we are going to build a Redux app where we can create, view, ed
 0. [Redux 101](0-redux-101)
 1. [Setting up the app](1-setting-up-the-app)
 2. [Adding a Header](2-adding-a-header)
+3. [Passing props to the Header](2-passing-props-to-the-header)
 
 <br>
 
@@ -301,6 +302,80 @@ export default class Header extends Component {
     return (
       <div className="header">
         <h1>Task Manager</h1>
+      </div>
+    )
+  }
+}
+```
+
+### 3. Passing props to the Header
+
+In this section we are going to set default state in the reducer, and pass it from the root container to the Header.
+
+The state we are going to add is the title. The title is not a value that's likely on state and probably doesn't belong in the state, but for practice purposes, let's see what it might look like.
+
+First, as usual, let's import some stuff.
+
+**src/reducers/index.js**
+```JavaScript
+import { combineReducers } from 'redux';
+```
+
+The `combineReducers` function from redux is used to combine multiple reducers into one. Each reducer gets its own key in the state object. In our case, we are going to start with one reducer called `title`.
+
+**src/reducers/index.js**
+```JavaScript
+export default combineReducers({
+  title
+});
+```
+
+`title` is a reducer function that takes two arguments - the state and the action dispatched. When we create the store, it runs through the reducer provided to check for any initial state.
+
+Using ES6, we can pass the initial state as a default argument to the function and simply return it. Now, the state object will have one key `title` which is pointing to a string with the value `Task Manager`
+
+**src/reducers/index.js**
+```JavaScript
+const title = (state = 'Task Manager', action) => {
+  return state
+}
+```
+
+In the container, we need to pass the value of the state to the `Header` component. There is a function called `mapStateToProps` that takes the application state as an argument, and we return an object with some of the state mapped to props we are passing to the component we are connecting to the store.
+
+We are accessing the value of the `title` key, which is `Task Manager`. We are also passing the `mapStateToProps` function to the `connect` function as an argument.
+
+**src/containers/RootContainer.js**
+```JavaScript
+const mapStateToProps = (state) => {
+  return {
+    title: state.title
+  }
+}
+
+export default connect(mapStateToProps)(RootContainer);
+```
+
+Next, we need to "receive" the props in the `RootContainer` component and pass it to the `Header`. The container takes an object as its argument whose keys correspond to the object we return in the `mapStateToProps` function.
+
+**src/containers/RootContainer.js**
+```JavaScript
+const RootContainer = ({ title }) => (
+  <div>
+    <Header title={title} />
+  </div>
+)
+```
+
+Before we verify our work in the browser, we need to use the prop passed down to the `Header` component.
+
+**src/components/Header.js**
+```JavaScript
+export default class Header extends Component {
+  render() {
+    return (
+      <div className="header">
+        <h1>{this.props.title}</h1>
       </div>
     )
   }
