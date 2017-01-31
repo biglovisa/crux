@@ -10,6 +10,8 @@ In this tutorial we are going to build a Redux app where we can create, view, ed
 2. [Adding a Header](2-adding-a-header)
 3. [Passing props to the Header](3-passing-props-to-the-header)
 4. [Create a task](4-create-a-task)
+5. [View tasks](5-view-tasks)
+6. [Delete a task](6-delete-a-task)
 
 <br>
 
@@ -617,3 +619,120 @@ RootContainer.PropTypes = {
 ```
 
 And hopefully when you add tasks using the form, you'll see them in the console!
+
+### 5. View tasks
+
+Now that we can create tasks, we should have a way to view them!
+
+We need to create another component that takes the created tasks as a prop, iterates over them and shows the title and the description of each task.
+
+Let's start in the `RootContainer`.
+
+```shell
+$ touch src/components/TaskList.js
+```
+
+
+**src/containers/RootContainer.js**
+```JavaScript
+....
+
+import AddNewForm from '../components/AddNewForm'
+import TaskList from '../components/TaskList'
+
+const RootContainer = ({ actions, tasks, title }) => (
+  <div>
+    {console.log('tasks:', tasks)}
+    <Header title={ title } />
+    <AddNewForm handleSubmitAction={ actions.createTask } />
+    <TasksList tasks={ tasks } />
+  </div>
+)
+
+....
+```
+
+Now let's build the `TaskList` component.
+
+We can add the `PropTypes`, since we know that we are going to receive an array of `tasks`.
+
+**src/components/TaskList.js
+```JavaScript
+import React, { Component, PropTypes } from 'react'
+
+export default class TaskList extends Component {
+  render() {
+    return (
+
+    )
+  }
+}
+
+TaskList.PropTypes = {
+  tasks: PropTypes.array.isRequired
+}
+
+```
+
+Next, let's render the `tasks`. We iterate over each element in the array, using the `id` as our key prop, and create html snippets using the title and description.
+
+**src/components/TaskList.js**
+```JavaScript
+render() {
+  const tasks = this.props.tasks.map((task) => {
+    return (
+      <div key={ task.id }>
+        <h3>{ task.title }</h3>
+        <p>{ task.description }</p>
+      </div>
+    )
+  })
+  return (
+    <div>
+      { tasks }
+    </div>
+  )
+}
+```
+
+We currently don't have the code for adding an id to the task object, but we can add that real quick.
+
+We are sending along id's in the payload...
+
+**src/components/AddNewForm.js**
+```JavaScript
+....
+
+export default class AddNewForm extends Component {
+  id = 0
+
+....
+
+  onClick() {
+    const { title, description } = this.state
+    this.props.handleSubmitAction({ id: this.id++, title, description })
+  }
+
+
+....
+```
+
+...and are including those in the new `task` objects in the reducer.
+
+**src/reducers/index.js**
+```JavaScript
+const tasks = (state = [], action) => {
+  if (action.type === 'CREATE_TASK') {
+    const { id, title, description } = action.payload
+    return [
+      { id, title, description },
+      ...state
+    ]
+  }
+  return state
+}
+
+....
+```
+
+Try it out in the browser and it should display the tasks on the page.

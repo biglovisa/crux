@@ -1,11 +1,13 @@
 import React, { Component } from 'react';
 
+
 export default class AddNewForm extends Component {
+  id = 0
   state = { title: '', description: '' }
 
   onClick() {
     const { title, description } = this.state
-    this.props.handleSubmitAction({ title, description })
+    this.props.handleSubmitAction({ id: this.id++, title, description })
   }
 
   render() {

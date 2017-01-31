@@ -5,12 +5,14 @@ import { connect } from 'react-redux'
 import * as actions from '../actions'
 import Header from '../components/Header'
 import AddNewForm from '../components/AddNewForm'
+import TaskList from '../components/TaskList'
 
 const RootContainer = ({ actions, tasks, title }) => (
   <div>
     {console.log('tasks:', tasks)}
     <Header title={ title } />
     <AddNewForm handleSubmitAction={ actions.createTask } />
+    <TaskList tasks={ tasks } handleDeleteTask={ actions.deleteTask } />
   </div>
 )
 
