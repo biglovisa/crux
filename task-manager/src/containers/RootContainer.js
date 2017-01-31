@@ -9,7 +9,6 @@ import TaskList from '../components/TaskList'
 
 const RootContainer = ({ actions, tasks, title }) => (
   <div>
-    {console.log('tasks:', tasks)}
     <Header title={ title } />
     <AddNewForm handleSubmitAction={ actions.createTask } />
     <TaskList tasks={ tasks } handleDeleteTask={ actions.deleteTask } />

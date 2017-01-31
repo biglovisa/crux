@@ -736,3 +736,75 @@ const tasks = (state = [], action) => {
 ```
 
 Try it out in the browser and it should display the tasks on the page.
+
+### 6. Delete a task
+
+To delete a task, we should start by giving the `TaskList` a function which we can call when we click the `Delete` button. With that, we need to add an action called `deleteTask` which describes what should happen when we delete a task.
+
+**src/containers/RootContainer.js**
+```JavaScript
+  <AddNewForm handleSubmitAction={ actions.createTask } />
+  <TasksList tasks={ tasks } handleDeleteTask={ actions.deleteTask } />
+</div>
+```
+
+We pass the id of the task to the action so we know which one to delete.
+
+**src/actions/index.js**
+```JavaScript
+export const deleteTask = (id) => ({ type: 'DELETE_TASK', id })
+```
+
+Let's also write the code for the reducer.
+
+Let's change the `if` statement in the `tasks` reducer to a `switch` statement. Since our condition is always checking the same thing, the action type, we get away with using a `switch`.
+
+Note that we are using `filter` to iterate over the tasks on state, and remove the one whose id was passed with the action.
+
+**src/reducers/index.js**
+```JavaScript
+const tasks = (state = [], action) {
+  switch (action.type) {
+    case 'CREATE_TASK':
+      const { id, title, description } = action.payload
+      return [
+        { id, title, description },
+        ...state
+      ]
+    case 'DELETE_TASK':
+      return state.filter(task => task.id != action.id)
+    default:
+      return state
+  }
+}
+```
+
+Next, we just need to add code to the `TasksList`.
+
+We add a button and add an event listener to it. When we click on the button, we pass the id to the `onDelete` function (and bind the current context to it). In `onDelete`, we are calling the dispatch function passed down to us as props and pass it the id.
+
+We also add the `handleDeleteTask` to the `PropTypes`.
+
+**src/components/TaskList.js**
+```JavaScript
+  onDelete(id) {
+    this.props.handleDeleteTask(id)
+  }
+
+....
+
+      <p>{ task.description }</p>
+      <button onClick={ this.onDelete.bind(this, task.id) }>Delete</button>
+    </div>
+
+
+....
+
+TaskList.PropTypes = {
+  tasks: PropTypes.array.isRequired,
+  handleDeleteTask: PropTypes.func.isRequired
+}
+
+```
+
+ Try it out in the browser and hopefully it should all work!

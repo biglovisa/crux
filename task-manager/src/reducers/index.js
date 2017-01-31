@@ -1,14 +1,18 @@
 import { combineReducers } from 'redux';
 
 const tasks = (state = [], action) => {
-  if (action.type === 'CREATE_TASK') {
-    const { title, description } = action.payload
-    return [
-      { title, description },
-      ...state
-    ]
+  switch (action.type) {
+    case 'CREATE_TASK':
+      const { id, title, description } = action.payload
+      return [
+        { id, title, description },
+        ...state
+      ]
+    case 'DELETE_TASK':
+      return state.filter(task => task.id != action.id)
+    default:
+      return state
   }
-  return state
 }
 
 const title = (state = 'Task Manager', action) => {
