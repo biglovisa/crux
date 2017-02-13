@@ -12,6 +12,7 @@ In this tutorial we are going to build a Redux app where we can create, view, ed
 4. [Create a task](4-create-a-task)
 5. [View tasks](5-view-tasks)
 6. [Delete a task](6-delete-a-task)
+7. [Quick optimization](7-quick-optimization)
 
 <br>
 
@@ -808,3 +809,101 @@ TaskList.PropTypes = {
 ```
 
  Try it out in the browser and hopefully it should all work!
+
+### 7. Quick optimization
+
+We might have a lot of tasks and wouldn't want all of them to re-render if only one is edited. Now we iterate over the collection of tasks and render all of them in one component, if one item in the collection changes, all tasks - even the unedited ones - will re-render. By creating a Task component which can take a singe prop, the task object, we can limit our re-renders to the task that was actually updated.
+
+```
+$ touch src/components/Task.js
+```
+
+We can add `PropTypes` to this component already, we know that it's going to have the `id`, `title`, and `description` from the task, as well as an `onDelete` function that we call when someone clicks the `Delete` button for a task.
+
+**src/components/Task.js**
+```JavaScript
+import React, { Component, PropTypes} from 'react'
+
+export default class Task extends Component {
+  render() {
+    return (
+
+    )
+  }
+}
+
+Task.PropTypes = {
+  description: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+}
+
+```
+
+Now we can more or less "lift" the task rendering logic from the `map` in the `TaskList` component.
+
+**src/components/Task.js**
+```JavaScript
+export default class Task extends Component {
+  render() {
+    const { description, id, onDelete, title } = this.props;
+    return (
+      <div key={ id }>
+        <h3>{ title }</h3>
+        <p>{ description }</p>
+        <button onClick={ onDelete.bind(null, id) }>Delete</button>
+      </div>
+    )
+  }
+}
+```
+
+In the `TaskList` component, we render a `Task` component instead of building HTML to render.
+
+**src/components/TaskList.js**
+```JavaScript
+import Task from './Task'
+
+....
+
+    const tasks = this.props.tasks.map(task => {
+      return (
+        <Task { ...task }
+              onDelete={ this.props.handleDeleteTask }
+              key={ task.id } />
+      )
+    })
+
+....
+
+```
+
+The last thing we need to do is to add a react lifecycle hook to the `Task` component so that we can stop it from rendering when its new props are the same as its current ones.
+
+We are using [`shouldComponentUpdate`](), which is called when a component is passed new props, before `componentWillMount`. It returns `true` by default, and when you return `false` the component does not re-render.
+
+**src/components/Task.js**
+```JavaScript
+shouldComponentUpdate(nextProps) {
+  return true
+}
+```
+
+Before we add the last piece of code, to see how many times the component should have re-rendered, just add a `console.log()` statement in the function so you can see when this function is called. The `Delete` button is essentially the only interaction we have to test yet, however. If you're curious, try this again once we have implemented more features.
+
+Lastly, we to determine when it is not necessary for us to re-render the component. In this case, `title` and `description` are the only props that will change, so let's only add checks for those.
+
+**src/components/Task.js**
+```JavaScript
+shouldComponentUpdate(nextProps) {
+  const { description, title } = this.props;
+  if (nextProps.description !== description) {
+    return false
+  }
+  if (nextProps.title !== title) {
+    return false
+  }
+  return true
+}
+```
