@@ -8,6 +8,7 @@ export default class TaskList extends Component {
       return (
         <Task { ...task }
               onDelete={ this.props.handleDeleteTask }
+              onUpdate={ this.props.handleUpdateTask }
               key={ task.id } />
       )
     })
@@ -21,5 +22,6 @@ export default class TaskList extends Component {
 
 TaskList.PropTypes = {
   tasks: PropTypes.array.isRequired,
-  handleDeleteTask: PropTypes.func.isRequired
+  handleDeleteTask: PropTypes.func.isRequired,
+  handleEditTask: PropTypes.func.isRequired,
 }

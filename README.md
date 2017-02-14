@@ -12,7 +12,8 @@ In this tutorial we are going to build a Redux app where we can create, view, ed
 4. [Create a task](4-create-a-task)
 5. [View tasks](5-view-tasks)
 6. [Delete a task](6-delete-a-task)
-7. [Quick optimization](7-quick-optimization)
+7. [Small improvement](7-small-improvement)
+8. [Edit a task](8-edit-a-task)
 
 <br>
 
@@ -810,7 +811,7 @@ TaskList.PropTypes = {
 
  Try it out in the browser and hopefully it should all work!
 
-### 7. Quick optimization
+### 7. Small improvement
 
 We might have a lot of tasks and wouldn't want all of them to re-render if only one is edited. Now we iterate over the collection of tasks and render all of them in one component, if one item in the collection changes, all tasks - even the unedited ones - will re-render. By creating a Task component which can take a singe prop, the task object, we can limit our re-renders to the task that was actually updated.
 
@@ -898,12 +899,296 @@ Lastly, we to determine when it is not necessary for us to re-render the compone
 ```JavaScript
 shouldComponentUpdate(nextProps) {
   const { description, title } = this.props;
-  if (nextProps.description !== description) {
-    return false
-  }
-  if (nextProps.title !== title) {
+  if (nextProps.description === description && nextProps.title === title) {
     return false
   }
   return true
 }
 ```
+
+One more thing before we move on!
+
+When we click the `Submit` button on our form, the input fields don't clear out. This obviously makes it annoying to add multiple tasks at once. Let's clear our the input fields after we click the `Submit` button.
+
+**src/components/AddNewForm.js**
+```JavaScript
+onClick() {
+  const { title, description } = this.state
+  this.props.handleSubmitAction({ id: this.id++, title, description })
+  this.setState({ title: '', description: '' })
+}
+```
+
+In order for this state change to propagate to the input fields, we need to set the `value` of the input fields to be their corresponding state values.
+
+**src/components/AddNewForm.js**
+```jsx
+....
+
+  <div>
+    <label>Title</label>
+    <input value={ this.state.title } onChange={(e) => this.setState({ title: e.target.value })} />
+  </div>
+  <div>
+    <label>Description</label>
+    <input value={ this.state.description } onChange={(e) => this.setState({ description: e.target.value })} />
+  </div>
+
+....
+```
+
+
+### 8. Edit a task
+
+It's important to allow our users to iterate on the task titles and description, so of course they should be able to edit their tasks.
+
+Let's start building from the bottom up. The first chunk we are going to build out is: clicking the edit button and changing the `h3` and `p` tag to input fields. Next chunk of work for this feature is to dispatch an action when the user clicks the `Submit` button after having edited the task.
+
+First, let's keep working on the `Task` component and start by adding a conditional in the `render` function which determines if we are going to render read only information about the task, or if we should render a form so the user can edit the task.
+
+**src/components/Task.js**
+```JavaScript
+....
+
+import Form from './Form'
+
+export default class Task extends Component {
+  state = { isEditing: false }
+
+....
+
+  render() {
+    return (
+      <div key={ this.props.id }>
+        { this.state.isEditing ? <Form /> : this.renderTask() }
+      </div>
+    )
+  }
+}
+```
+
+In the `renderTask` function, we return what was previously in the render function, and in the `renderForm` function, we can seize the opportunity to build a reusable `Form` component and refactor the `AddNewForm` component to use it as well.
+
+We added a new button, an `Edit` button which, when clicked, sets the state of `isEditing` to true.
+
+**src/components/Task.js**
+```JavaScript
+....
+
+renderTask() {
+  const { description, id, onDelete, title } = this.props
+  return (
+    <div>
+      <h3>{ title }</h3>
+      <p>{ description }</p>
+      <button onClick={ onDelete.bind(null, id) }>Delete</button>
+      <button onClick={ () => this.setState({ isEditing: true }) }>Edit</button>
+    </div>
+  )
+}
+
+....
+```
+
+With this new added state, we need to extend the conditional in the `shouldComponentUpdate` hook.
+
+That function will trigger when the `isEditing` state changes, and when it changes the title and the description will not have changed, and the conditional in the `if` statement fails, which means that the component will not update.
+
+**src/components/Task.js**
+```JavaScript
+shouldComponentUpdate(nextProps, nextState) {
+  const { description, title } = this.props;
+  if (nextProps.description === description && nextProps.title === title && this.state.isEditing) {
+    return false
+  }
+  return true
+}
+```
+
+
+For the `Form` component, the only props we need to pass are the `onSubmit` function that is invoked when the user is done editing the task, as well as the current values for `title` and `description`.
+
+**src/components/Task.js**
+```JavaScript
+render() {
+  const content = this.state.isEditing ? <Form onSubmit={ this.handleSubmit.bind(this) }
+                                               defaults={ { title: this.props.title, description: this.props.description } }
+                                               />
+                                       : this.renderTask()
+  return (
+    <div key={ this.props.id }>
+      { content }
+    </div>
+  )
+```
+
+Let's actually build the `Form` component.
+
+```shell
+$ touch src/components/Form.js
+```
+
+**src/components/Form.js**
+```JavaScript
+import React, { Component, PropTypes } from 'react'
+
+export default class Form extends Component {
+  state = { title: '', description: '' }
+
+  render() {
+    return (
+    )
+  }
+}
+
+Form.PropTypes = {
+  onSubmit: PropTypes.func.isRequired,
+  defaults: PropTypes.object.isRequired
+}
+```
+
+For the form itself, we can borrow almost the entire thing from the `AddNewForm` component. We get the input field placeholders from `this.props.defaults`, and when the user updates the input fields, we store that value on state, just like the `AddNewForm` component.
+
+The callback for clicking the `Submit` button is invoking a function which passes the state, the "latest" values of title and description, as an argument.
+
+**src/components/Form.js**
+```JavaScript
+....
+
+  state = { title: '', description: '' }
+
+  handleSubmit() {
+    this.props.onSubmit(this.state)
+  }  
+
+  render() {
+    return (
+      <div>
+        <div>
+          <label>Title</label>
+          <input placeholder={ this.props.defaults.title } onChange={(e) => this.setState({ title: e.target.value })} />
+        </div>
+        <div>
+          <label>Description</label>
+          <input placeholder={ this.props.defaults.description } onChange={(e) => this.setState({ description: e.target.value })} />
+        </div>
+        <button type="submit" onClick={this.handleSubmit.bind(this)}>Submit</button>
+      </div>
+    )
+  }
+```
+
+Now that we have the changes in the `Task` component, refactoring it to fit the `AddNewForm` component shouldn't be that bad. :fingers_crossed:
+
+When rendering the `Form` component from the `AddNewForm`, we don't have any default values to give (so we have to remember to change the prop to be required in the `Form`'s PropTypes). We just give it the `onSubmit` prop, and when it's invoked, we add the task's id to the object we dispatch.
+
+**src/components/AddNewForm.js**
+```JavaScript
+....
+
+import Form from './Form'
+
+export default class AddNewForm extends Component {
+  id = 0
+  handleSubmit(task) {
+    this.props.handleSubmitAction(Object.assign(task, { id: this.id++ }))
+  }
+
+  render() {
+    return <Form onSubmit={ this.handleSubmit.bind(this) } />
+  }
+}
+```
+
+With the now optional `defaults` prop, we need to make another change to the `Form` component. In the jsx where we render the default values as the input fields' placeholders, we need to make sure we have that prop before we access keys off of it.
+
+**src/components/Form.js**
+```JavaScript
+  ....
+
+  <input placeholder={ this.props.defaults && this.props.defaults.title } onChange={(e) => this.setState({ title: e.target.value })} />
+
+  ....
+
+  <input placeholder={ this.props.defaults && this.props.defaults.description } onChange={(e) => this.setState({ description: e.target.value })} />
+
+  ....
+```
+
+Now, back to the `Task` component and dispatching the action with the updated values.
+
+The `onSubmit` prop we pass to the `Form` component invokes a function `handleSubmit` in the `Task` component.
+
+First, we toggle the `isEditing` state back to false, as the user is presumably done with the editing when they `Submit` their changes. We call a function called `onUpdate` we get from props - remember to add it to the `PropTypes` - and give it the incoming argument, as well as the id of the given task, so we can find and update the right one.
+
+**src/components/Task.js**
+```JavaScript
+....
+
+  handleSubmit(task) {
+    this.setState({ isEditing: false })
+    this.props.onUpdate(Object.assign(task, { id: this.props.id }));
+  }
+
+....
+
+Task.PropTypes = {
+  description: PropTypes.string.isRequired,
+  id: PropTypes.number.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+}
+
+```
+
+We render the `Task` in `TaskList`, so the `onUpdate` prop we call in the `Task`, should come from here. Here, our parent is the container and we can, like we did with the delete button, dispatch an action to update the global application state.
+
+**src/components/TaskList.js**
+```JavaScript
+return (
+  <Task { ...task }
+        onDelete={ this.props.handleDeleteTask }
+        onUpdate={ this.props.handleUpdateTask }
+        key={ task.id } />
+)
+```
+
+In the `RootContainer`, we dispatch an action called `updateTask`. That action should take the object with the id, title, and description as a payload and pass it to the reducer so we can update the task.
+
+**src/containers/RootContainer.js**
+```JavaScript
+<div>
+  <Header title={ title } />
+  <AddNewForm handleSubmitAction={ actions.createTask } />
+  <TaskList tasks={ tasks } handleDeleteTask={ actions.deleteTask } handleUpdateTask={ actions.updateTask } />
+</div>
+```
+
+Add the `updateTask` action...
+
+**src/actions/index.js**
+```JavaScript
+export const updateTask = (payload) => ({ type: 'UPDATE_TASK', payload })
+```
+
+And add to the switch statement in the reducer to handle the case when we are updating the task.
+
+When we are updating a task, we iterate over the tasks in state to find the one whose id matches the id passed in the payload. When we do, we update its title and description property with the ones that we got from `action.payload`.
+
+**src/reducers/index.js**
+```JavaScript
+case 'UPDATE_TASK':
+  return state.map(task => {
+    if (task.id === action.payload.id) {
+      const { title, description } = action.payload
+      task.title = title === "" ? task.title : title
+      task.description = description === "" ? task.description : description
+    }
+    return task
+  })
+```
+
+nice job
+
+![](http://i.giphy.com/q3uHuQm4fgfdK.gif)

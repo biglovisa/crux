@@ -11,7 +11,7 @@ const RootContainer = ({ actions, tasks, title }) => (
   <div>
     <Header title={ title } />
     <AddNewForm handleSubmitAction={ actions.createTask } />
-    <TaskList tasks={ tasks } handleDeleteTask={ actions.deleteTask } />
+    <TaskList tasks={ tasks } handleDeleteTask={ actions.deleteTask } handleUpdateTask={ actions.updateTask } />
   </div>
 )
 

@@ -10,6 +10,15 @@ const tasks = (state = [], action) => {
       ]
     case 'DELETE_TASK':
       return state.filter(task => task.id != action.id)
+    case 'UPDATE_TASK':
+      return state.map(task => {
+        if (task.id === action.payload.id) {
+          const { title, description } = action.payload
+          task.title = title === "" ? task.title : title
+          task.description = description === "" ? task.description : description
+        }
+        return task
+      })
     default:
       return state
   }
