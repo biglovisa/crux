@@ -19,21 +19,23 @@ In this tutorial we are going to build a Redux app where we can create, view, ed
 
 ### 0. Redux 101
 
-Redux wasn't the first of its kind. Before it got popular in mid-2015, there were many projects that had attempted solving the same problem: managing state across a larger front end application.
+Other very useful information on Redux:
 
-With Redux, you maintain your application state in a store. You keep a single state object in the store, and when you update it, you cannot mutate it but rather, have to replace it with a new object. You connect components to the Redux store so that they are notified of any state changes when those occur.
+- [Tutorial videos by Dan Abramov](https://egghead.io/courses/getting-started-with-redux)
+- [Redux docs](http://redux.js.org/docs/basics/)
+- [Lin Clark's cartoon guide](https://code-cartoons.com/a-cartoon-intro-to-redux-3afb775501a6#.n2qtjwsvh)
 
-When something happens in a component that should change the state, you dispatch an action. The action is basically just a POJO (plain old JavaScript object) with a few special keys. This object is required to have a key `type` which points to a string value (the name of the action, or the action type). Other keys in the action object can be user entered data that we're going to save in our database.
+Redux TL:DR;
 
-When an action is dispatched, it's run through the reducers where we can specify how the state should update based on what type the given action has. **The inputs to a reducer is the state and the action, and the output is a new, updated, version of the application state.** Reducers are pure functions, meaning that they cannot have side effects or mutate data.
+Redux keeps a single immutable state object in the store, so when it's updated it needs to be replaced with a new object. You connect components to the Redux store so that they are notified of any state changes when those occur.
 
-The new state that's returned by the reducer gets set in the Redux store. The components that are connected to the redux store will be notified about the state change and re-render accordingly.
+To update the global application state, you dispatch actions. The action is essentially just an object, with a required key `type` used to identify it. The action object can have more keys, carrying other information needed to update state.
 
-For more information about how Redux works, check out this [cartoon guide](https://code-cartoons.com/a-cartoon-intro-to-redux-3afb775501a6#.n2qtjwsvh).
+The dispatched actions are run through a set of so-called reducers where we can update the state based on the action's `type`. The reducers never mutate the application state, it always returns a new, potentially modified, copy of the application state.   
 
-Another important thing about using Redux with React is the separation of presentational and container components. You might have heard of "smart" and "dumb" components, and this is very similar. In an effort to separate concerns and isolate dependencies on state, we write as many presentational, dumb, components as possible. Dumb components receive data from their parents (in the form of props) and render differently based on that data.
+Another thing I won't cover in detail is the difference between containers and components. Container components are aware of Redux and are connected to the Redux store. Most of the logic should end up here. In these container components, we can calculate based on state what data and callbacks we need to pass down to the presentational components.
 
-Container components are aware of Redux and are connected to the Redux store. Most of the logic should end up here. In these container components, we can calculate based on state what data and callbacks we need to pass down to the dumb components.
+Also check out the [docs on presentational and container components](http://redux.js.org/docs/basics/UsageWithReact.html#presentational-and-container-components).
 
 ### 1. Setting up the app
 
