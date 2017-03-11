@@ -66,14 +66,14 @@ Great!
 
 In order for the babel package to work correctly, we need to add a config file, a `.babelrc` file.
 
-We can simply add the contents of the file using `echo` in the terminal.
+We can simply add the contents of the file using the `echo` command in the terminal.
 
 ```shell
-$ echo "{
+$ echo '{
   "presets": ["react", "es2015"],
   "plugins": ["transform-class-properties"]
 }
-" > .babelrc
+' > .babelrc
 ```
 
 Run `cat .babelrc` in your terminal to make sure we added the config ok.
@@ -86,7 +86,7 @@ $ touch webpack.config.js
 
 Webpack is a tool which will transpile all your JavaScript, Json, and CSS files. This is useful for a lot of reasons, for example, it can improve the general performance and size of your app, and compile newer versions of JavaScript to older ones with cross-browser support.
 
-To set it up, in your `webpack.config.js`, you need to specify an entry point (where webpack will look for files) and an output path (where webpack will spit out the code bundle). If we specify in our config to output the bundle to `path/to/bundle.js`, then we will load a script from `path/to/bundle.js` in our index.html page.
+To set it up, in your `webpack.config.js` file, you need to specify an entry point (where webpack will look for files) and an output path (where webpack will spit out the code bundle). If we specify in our config to output the bundle to `path/to/bundle.js`, then we will load a script from `path/to/bundle.js` in our index.html page.
 
 **webpack.config.js**
 ```JavaScript
@@ -225,7 +225,7 @@ In this section we are going to set up the Redux store, our container component,
 
 In the `index.js` file we created in the `src` directory, and in that file we are going to put our root container. We are going to connect the root container to the redux store so that we are notified of any state changes. Using the state object, we then can "prepare" data and functions we pass down to presentational (dumb) components that are rendered in the root container.
 
-Let's create the root container and the
+Let's create the root container and the header component.
 
 ```shell
 $ touch src/containers/RootContainer.js src/components/Header.js
@@ -244,7 +244,7 @@ import RootContainer from './containers/RootContainer'
 import reducer from './reducers'
 ```
 
-`createStore` is a well named function used to create Redux stores and `Provider` is a wrapper component which is given a redux store as a prop, and notifies connected components to state changes.
+`createStore` is a well named function used to create Redux stores. `Provider` is a wrapper component which is given a redux store as a prop, and notifies connected components to state changes.
 
 We pass a reducer to the `createStore` function to create a store. When an action dispatches, it will go through the given reducers to determine what changes need to be made to state.
 
@@ -269,7 +269,7 @@ render(
 
 Now, we move on to the root container.
 
-Again, we import some stuff and import the Header component we are going to use. `connect` is the function we use to
+Again, we import some stuff and import the Header component we are going to use. `connect` is the function we use to subscribe components to the Redux store. The connected components will be notified of all state changes.
 
 **src/containers/RootContainer.js**
 ```JavaScript
@@ -339,7 +339,7 @@ export default combineReducers({
 
 `title` is a reducer function that takes two arguments - the state and the action dispatched. When we create the store, it runs through the reducer provided to check for any initial state.
 
-Using ES6, we can pass the initial state as a default argument to the function and simply return it. Now, the state object will have one key `title` which is pointing to a string with the value `Task Manager`
+Using ES6, we can pass the initial state as a default argument to the function and simply return it. Now, the state object will have one key `title` which is pointing to a string with the value `Task Manager`.
 
 **src/reducers/index.js**
 ```JavaScript
@@ -475,7 +475,7 @@ render() {
 }
 ```
 
-Let's add an event listener to the `Submit` button. We need to use [`bind()`]() since the `this` context is not bound to component functions. If you use `React.createClass`, the context is implicitly bound to the functions on the component. Another way to solve this problem is to bind functions in the class constructor, or use the [react-autobind](https://www.npmjs.com/package/react-autobind) library.
+Let's add an event listener to the `Submit` button. We need to use [`bind()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/bind) since the `this` context is not bound to component functions. If you use `React.createClass`, the context is implicitly bound to the functions on the component. Another way to solve this problem is to bind functions in the class constructor, or use the [react-autobind](https://www.npmjs.com/package/react-autobind) library.
 
 **src/components/AddNewForm.js**
 ```JavaScript
@@ -539,6 +539,8 @@ export const createTask = (payload) => ({ type: 'CREATE_TASK', payload });
 
 The action will be passed to every reducer in the store, and using the type, we can react to different dispatches. Below, we have added a new reducer  - `tasks` - and added it to the `combineReducers` function. If the action type is `CREATE_TASK`, we are assuming that there is a title and a description in the payload, and are returning a new array containing the previously existing task as well as the new task object.
 
+Note that we are returning the passed in state at the bottom of the reducer. If we aren't caught in an `if` statement, the function would return `undefined`. The Redux store is initialized with the state returned from the reducers, which cannot be `undefined`.
+
 **src/reducers/index.js**
 ```JavaScript
 const tasks = (state = [], action) => {
@@ -549,6 +551,7 @@ const tasks = (state = [], action) => {
       { title, description }
     ]
   }
+  return state
 }
 
 ....
@@ -752,7 +755,7 @@ To delete a task, we should start by giving the `TaskList` a function which we c
 </div>
 ```
 
-We pass the id of the task to the action so we know which one to delete.
+We want to pass the id of the task to the action so we know which one to delete.
 
 **src/actions/index.js**
 ```JavaScript
@@ -767,7 +770,7 @@ Note that we are using `filter` to iterate over the tasks on state, and remove t
 
 **src/reducers/index.js**
 ```JavaScript
-const tasks = (state = [], action) {
+const tasks = (state = [], action) => {
   switch (action.type) {
     case 'CREATE_TASK':
       const { id, title, description } = action.payload
@@ -815,7 +818,7 @@ TaskList.PropTypes = {
 
 ### 7. Small improvement
 
-We might have a lot of tasks and wouldn't want all of them to re-render if only one is edited. Now we iterate over the collection of tasks and render all of them in one component, if one item in the collection changes, all tasks - even the unedited ones - will re-render. By creating a Task component which can take a singe prop, the task object, we can limit our re-renders to the task that was actually updated.
+We might have a lot of tasks and wouldn't want all of them to re-render if only one is edited. Now we iterate over the collection of tasks and render all of them in one component, if one item in the collection changes, all tasks - even the unedited ones - will re-render. By creating a Task component which can take a single prop, the task object, we can limit our re-renders to the task that was actually updated.
 
 ```
 $ touch src/components/Task.js
@@ -895,7 +898,7 @@ shouldComponentUpdate(nextProps) {
 
 Before we add the last piece of code, to see how many times the component should have re-rendered, just add a `console.log()` statement in the function so you can see when this function is called. The `Delete` button is essentially the only interaction we have to test yet, however. If you're curious, try this again once we have implemented more features.
 
-Lastly, we to determine when it is not necessary for us to re-render the component. In this case, `title` and `description` are the only props that will change, so let's only add checks for those.
+Lastly, we need to determine when it is not necessary for us to re-render the component. In this case, `title` and `description` are the only props that will change, so let's only add checks for those.
 
 **src/components/Task.js**
 ```JavaScript
@@ -910,7 +913,7 @@ shouldComponentUpdate(nextProps) {
 
 One more thing before we move on!
 
-When we click the `Submit` button on our form, the input fields don't clear out. This obviously makes it annoying to add multiple tasks at once. Let's clear our the input fields after we click the `Submit` button.
+When we click the `Submit` button on our form, the input fields don't clear out. This obviously makes it annoying to add multiple tasks at once. Let's clear out the input fields after we click the `Submit` button.
 
 **src/components/AddNewForm.js**
 ```JavaScript
@@ -1138,7 +1141,7 @@ Task.PropTypes = {
   description: PropTypes.string.isRequired,
   id: PropTypes.number.isRequired,
   onDelete: PropTypes.func.isRequired,
-  onEdit: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
   title: PropTypes.string.isRequired,
 }
 
